@@ -516,6 +516,7 @@ class TestDashboardMap(
             tabs = self.web_driver.window_handles
             self.web_driver.switch_to.window(tabs[1])
             self.web_driver.get(incorrect_url)
+            self.wait_for_visibility(By.CSS_SELECTOR, ".leaflet-container", timeout=5)
             self.wait_for_invisibility(By.CSS_SELECTOR, ".map-detail", timeout=5)
             self.web_driver.close()
             self.web_driver.switch_to.window(tabs[0])
