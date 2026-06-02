@@ -516,9 +516,40 @@ class TestDashboardMap(
             tabs = self.web_driver.window_handles
             self.web_driver.switch_to.window(tabs[1])
             self.web_driver.get(incorrect_url)
+            self.wait_for_visibility(By.CSS_SELECTOR, ".leaflet-container", timeout=5)
             self.wait_for_invisibility(By.CSS_SELECTOR, ".map-detail", timeout=5)
             self.web_driver.close()
             self.web_driver.switch_to.window(tabs[0])
+
+        with self.subTest("Test with incorrect map Id"):
+            incorrect_url = (
+                f"{self.live_server_url}/admin/#id=incorrectMapId&nodeId={location.id}"
+            )
+            self.web_driver.switch_to.new_window("tab")
+            tabs = self.web_driver.window_handles
+            self.web_driver.switch_to.window(tabs[1])
+            self.web_driver.get(incorrect_url)
+            self.wait_for_invisibility(By.CSS_SELECTOR, ".map-detail", timeout=5)
+            self.web_driver.close()
+            self.web_driver.switch_to.window(tabs[0])
+
+        with self.subTest("Test removing url fragment nodeId after closing geo popup"):
+            self.wait_for(
+                "element_to_be_clickable",
+                By.CSS_SELECTOR,
+                "#device-map-container .leaflet-popup-close-button",
+                timeout=5,
+            ).click()
+            try:
+                WebDriverWait(self.web_driver, 5).until(
+                    lambda d: f"nodeId={location.id}"
+                    not in d.execute_script("return window.location.hash;")
+                )
+            except TimeoutException:
+                self.fail("URL fragment nodeId was not removed after closing geo popup")
+            current_hash = self.web_driver.execute_script("return window.location.hash;")
+            self.assertIn(f"id={mapId}", current_hash)
+            self.assertNotIn(f"nodeId={location.id}", current_hash)
 
     def test_floorplan_overlay(self):
         org = self._get_org()
