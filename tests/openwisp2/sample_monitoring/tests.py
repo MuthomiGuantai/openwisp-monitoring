@@ -44,8 +44,6 @@ class TestMonitoringNotifications(BaseTestMonitoringNotifications):
     pass
 
 
-class TestTransactionMonitoringNotifications(
-    BaseTestTransactionMonitoringNotifications
 ):
     pass
 
